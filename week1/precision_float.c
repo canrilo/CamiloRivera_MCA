@@ -9,6 +9,13 @@ int main(void){
   float x1;
   int i;
   float *interv;
+  FILE *exp;
+  char nombrefof[30] = "Precisiones_float.txt";
+  
+  exp=fopen(nombrefof,"w");
+	if(!exp){
+	printf("Hubo problemas abriendo el archivo %s\n",nombrefof);
+	}
   
   interv=malloc(24*sizeof(float));
 
@@ -18,10 +25,13 @@ int main(void){
 	id = (*(unsigned int*)&x);
 	id++;
     x1 = (*(float*)&id);
-    printf("%.25e\n", x1-x);
+    //printf("%.25e\n", x1-x);
     interv[i]=x1-x;
+    fprintf(exp,"%e\n",interv[i]);
     x=x*10;
   }
+  
+  fclose(exp);
 
   return 0;
 }
