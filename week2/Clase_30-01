@@ -1,0 +1,9 @@
+Usuario: fisi3028
+Clave: 201710fisi3028
+Maquina: clustergate.uniandes.edu.co
+-------------------------------------------------
+lscpu
+qnodes
+qstat -q
+
+Submit queue: qsub ****.sh
