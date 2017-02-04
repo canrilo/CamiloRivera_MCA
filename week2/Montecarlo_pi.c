@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
 	  x=drand48();
 	  y=drand48();
 	  z = pow(x,2)+pow(y,2);
-	  if (z < 1.f){
+	  if (z < 1.0f){
 		  count++;
 	  }
   }
