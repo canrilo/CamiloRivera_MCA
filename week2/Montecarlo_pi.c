@@ -34,21 +34,22 @@ int main(int argc, char** argv) {
 	  }
   }
   
-  if (rank==0){
-	  int *conteos = malloc(size*sizeof(int));
-  }
-  MPI_Gather(&count, 1, MPI_INT, conteos, 1, MPI_INT, 0, MPI_COMM_WORLD);
   
-  
-  if (rank==0){
-	int total_count=0;
-	float my_pi;
-	for(i=0;i<size;i++){
-		total_count+=conteos[i];
+	int *conteos = NULL;
+	if (rank==0){
+		conteos = malloc(size*sizeof(int));
 	}
-	my_pi=total_count/(num_steps*size*0.25);
+	MPI_Gather(&count, 1, MPI_INT, conteos, 1, MPI_INT, 0, MPI_COMM_WORLD);
 	
-	printf("El numero pi calculado fue %e\n",my_pi);
-  }
+	if (rank==0){  
+		int total_count=0;
+		float my_pi;
+		for(i=0;i<size;i++){
+			total_count+=conteos[i];
+		}
+		my_pi=total_count/(num_steps*size*0.25);
+		
+		printf("El numero pi calculado fue %e\n",my_pi);
+	}
   MPI_Finalize();
 }
