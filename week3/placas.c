@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <mpi.h>
 
 int L = 5, l = 2, d = 1, V0 = 100, m, N;
-double h = 0.02;
+double h = 0.01953125;
 
 int transformer(int i, int j);
 double *init(int x0, int x1, int y0, int y1, double *array);
@@ -12,15 +13,30 @@ int main(void)
 	int up, down, left, right, x0, x1, y0, y1, i=1, j=1, n=0;
 	double average;
 	
+	int rank, size;
+	
+	MPI_Init(NULL, NULL);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	
+	if(!ispowerof2(size))
+	{
+		printf("Number of processors must be power of 2\n");
+		exit(0);
+	}
+	
 	m = L/h;
 	N = 2*m*m;
 
-	x0 = m/2 - l/(h*2) - 1;
-	x1 = m/2 + l/(h*2) - 1;
-	y0 = m/2 - d/(h*2) - 1;
-	y1 = m/2 + d/(h*2) - 1;
+	x0 = (int) m/2 - l/(h*2) - 1;
+	x1 = (int) m/2 + l/(h*2) - 1;
+	y0 = (int) m/2 - d/(h*2) - 1;
+	y1 = (int) m/2 + d/(h*2) - 1;
 	
-	double *V = malloc(m*m*sizeof(double));
+	
+	
+	
+	double *V = malloc((m*m/size +m)*sizeof(double));
 	
 	V = init(x0, x1, y0, y1, V);
 	
@@ -61,6 +77,24 @@ int transformer(int i, int j)
 
 double *init(int x0, int x1, int y0, int y1, double *array)
 {	
+	for(i=1;i < m-1; i++)
+	{
+		for(j=1;j < m-1; j++)
+		{
+			if (i==y0 && j>=x0 && j<= x1)
+			{
+				array[transformer(i, j)] = V0/2;
+			}
+			else if (i==y1 && j>=x0 && j<= x1)
+			{
+				array[transformer(i, j)] = -V0/2;
+			}
+			else
+			{
+				array[transformer(i,j)] = 0;
+			}
+		}
+	}
 	int a;
 	for(a = x0; a <= x1; a++)
 	{
@@ -69,3 +103,8 @@ double *init(int x0, int x1, int y0, int y1, double *array)
 	}
 	return array;
 }
+
+
+int ispowerof2(unsigned int x) {
+   return x && !(x & (x - 1));
+ }
