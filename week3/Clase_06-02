@@ -1,0 +1,2 @@
+El MPI_wait asegura que se ejecuten todas las funciones anteriores 
+(con lso apuntadores de los request) antes de seguir.
