@@ -84,9 +84,10 @@ int main(void)
 		}
 		if(!rank==0)
 		{
-			for(i=0;i<m;i++)
+			for(j=0;j<m;j++)
 			{
-				send_buff[i] = V[i];
+				//send_buff[i] = V[i];
+				send_buff[i] = V[transformer(1,j)];
 			}
 			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
 			MPI_Isend(send_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
@@ -94,27 +95,30 @@ int main(void)
 			MPI_Wait(&send_request, &status);
 			MPI_Wait(&recv_request, &status);
 			
-			for(i=0;i<m;i++)
+			for(j=0;j<m;j++)
 			{
-				V[m+i] = receive_buff[i];
+				//V[m+i] = receive_buff[i];
+				V[transformer(0,j)]=receive_buff[j];
 			}
 		}
 		else if (rank !=(size-1))
 		{
-			for(i=0;i<m;i++)
+			for(j=0;j<m;j++)
 			{
-				send_buff[i] = V[m*(num-1)+i];
+				//send_buff[i] = V[m*(num-1)+i];
+				send_buff[j] = V[transformer(num-2,j)];
 			}
 			
-			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request);
-			MPI_Isend(send_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request);
+			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request2);
+			MPI_Isend(send_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request2);
 			
 			MPI_Wait(&send_request2, &status);
 			MPI_Wait(&recv_request2, &status);
 			
-			for(i=0;i<m;i++)
+			for(j=0;j<m;j++)
 			{
-				V[m*(num-2)+i] = receive_buff[i];
+				//V[m*(num-2)+i] = receive_buff[i];
+				V[transformer(num-1,j)] = receive_buff[j];
 			}
 		}
 		n += 1;
