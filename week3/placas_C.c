@@ -59,23 +59,25 @@ int main(void)
 	send_buff = malloc(m*sizeof(double));
 	receive_buff = malloc(m*sizeof(double));
 	while (n < N)
-	{		
+	{	//printf("Proc: %d. Ciclo %d\n" ,rank,n);
 		for(i=1;i < num-1; i++)
 		{
 			ii = i + rank*m/size - r;
 			for(j=1;j < m-1; j++)
 			{
+				//printf("Proc: %d. Ubicacion actual= %d (%d)- %d\n",rank,i,ii,j);
 				up = transformer(i-1, j);
 				down = transformer(i+1, j);
 				left = transformer(i, j-1);
 				right = transformer(i, j+1);
 				if (!(j >= x0 && j <= x1 && ii == y0) && !(j >= x0 && j <= x1 && ii == y1))
 				{
-					printf("Ubicacion actual= %d - %d",i,j);
+					//printf("Proc: %d. Up= %d, Down =%d, Left=%d, Right=%d\n",rank,up,down,left,right);
 					average = (V[up] + V[down] + V[left] + V[right])/4;
-					dummy++;
+					//dummy++;
 					V_new[transformer(i,j)] = average;
 				}
+				
 			}
 		}
 		
@@ -200,6 +202,7 @@ double *init(int x0, int x1, int y0, int y1, double *array)
 			}
 		}
 	}
+	return array;
 }
 
 int ispowerof2(unsigned int x) {
