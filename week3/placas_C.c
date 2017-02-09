@@ -129,16 +129,22 @@ int main(void)
 	V_Reduced = malloc(m*m/size*sizeof(double));
 	if (rank==0)
 	{
-		for(i=0;i<m*m/size;i++)
+		for(i=0;i<m/size;i++)
 		{
-			V_Reduced[i] = V[i];
+			for (j=0;j<m;j++)
+			{
+				V_Reduced[transformer(i,j)] = V[transformer(i,j)];
+			}
 		}
 	}
 	else
 	{
-		for(i=0;i<m*m/size;i++)
+		for(i=0;i<m/size;i++)
 		{
-			V_Reduced[i] = V[m+i];
+			for (j=0;j<m;j++)
+			{
+				V_Reduced[transformer(i,j)] = V[transformer(i+1,j)];
+			}
 		}
 		//V_Reduced = &V[m];
 	}
