@@ -132,7 +132,7 @@ int transformer(int i, int j)
 
 double *init(int x0, int x1, int y0, int y1, double *array)
 {	
-	int ii;
+	int ii,i,j;
 	for(i=0;i < num; i++)
 	{
 		ii = i + rank*m/size - r;
