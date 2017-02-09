@@ -21,6 +21,7 @@ int main(void)
 	MPI_Request send_request,send_request2, recv_request,recv_request2;
 	MPI_Status status;
 	
+	
 	if(!ispowerof2(size))
 	{
 		printf("Number of processors must be power of 2\n");
@@ -53,6 +54,8 @@ int main(void)
 	V = init(x0, x1, y0, y1, V);
 	V_new = init(x0, x1, y0, y1, V);
 	
+	send_buff = malloc(m*sizeof(double));
+	receive_buff = malloc(m*sizeof(double));
 	while (n < N)
 	{		
 		for(i=1;i < num-1; i++)
@@ -80,18 +83,39 @@ int main(void)
 		}
 		if(!rank==0)
 		{
-			MPI_Irecv(&V[m], m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
-			MPI_Isend(&V[0], m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
+			for(i=0;i<m;i++)
+			{
+				send_buff[i] = V[i];
+			}
+			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
+			MPI_Isend(send_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
+			
+			MPI_Wait(&send_request, &status);
+			MPI_Wait(&recv_request, &status);
+			
+			for(i=0;i<m;i++)
+			{
+				V[m+i] = send_buff[i];
+			}
 		}
 		else if (rank !=(size-1))
 		{
-			MPI_Irecv(&V[m*(num-2)], m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request);
-			MPI_Isend(&V[m*(num-1)], m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request);
+			for(i=0;i<m;i++)
+			{
+				send_buff[i] = V[m*(num-1)+i];
+			}
+			
+			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request);
+			MPI_Isend(send_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request);
+			
+			MPI_Wait(&send_request2, &status);
+			MPI_Wait(&recv_request2, &status);
+			
+			for(i=0;i<m;i++)
+			{
+				V[m*(num-2)+i] = send_buff[i];
+			}
 		}
-		MPI_Wait(&send_request, &status);
-		MPI_Wait(&recv_request, &status);
-		MPI_Wait(&send_request2, &status);
-		MPI_Wait(&recv_request2, &status);
 		n += 1;
 	}
 	free(V_new);
@@ -100,11 +124,18 @@ int main(void)
 	V_Reduced = malloc(m*m/size*sizeof(double));
 	if (rank==0)
 	{
-		V_Reduced = V;
+		for(i=0;i<m*m/size;i++)
+		{
+			V_Reduced[i] = V[i];
+		}
 	}
 	else
 	{
-		V_Reduced = &V[m];
+		for(i=0;i<m*m/size;i++)
+		{
+			V_Reduced[i] = V[m+i];
+		}
+		//V_Reduced = &V[m];
 	}
 	free(V);
 	if(rank==0)
