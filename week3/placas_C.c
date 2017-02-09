@@ -51,7 +51,7 @@ int main(void)
 	double *V_new = malloc(m*num*sizeof(double));
 	
 	V = init(x0, x1, y0, y1, V);
-	V_new = init(x0, x1, y0, y1, V);
+	V_new = init(x0, x1, y0, y1, V_new);
 	
 	while (n < N)
 	{		
@@ -100,7 +100,7 @@ int main(void)
 	V_Reduced = malloc(m*m/size*sizeof(double));
 	if (rank==0)
 	{
-		V_Reduced = V;
+		V_Reduced = &V[0];
 	}
 	else
 	{
