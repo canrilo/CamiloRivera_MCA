@@ -7,6 +7,7 @@ double h = 0.01953125;
 
 int transformer(int i, int j);
 double *init(int x0, int x1, int y0, int y1, double *array);
+int ispowerof2(unsigned int x);
 
 int main(void)
 {
@@ -154,7 +155,6 @@ double *init(int x0, int x1, int y0, int y1, double *array)
 		}
 	}
 }
-
 
 int ispowerof2(unsigned int x) {
    return x && !(x & (x - 1));
