@@ -55,9 +55,11 @@ int main(void)
 	V = init(x0, x1, y0, y1, V);
 	V_new = init(x0, x1, y0, y1, V_new);
 	
-	double *send_buff, *receive_buff;	
+	double *send_buff, *receive_buff, *send_buff2, *receive_buff2;	
 	send_buff = malloc(m*sizeof(double));
 	receive_buff = malloc(m*sizeof(double));
+	send_buff2 = malloc(m*sizeof(double));
+	receive_buff2 = malloc(m*sizeof(double));
 	while (n < N)
 	{	printf("Proc: %d. Ciclo %d\n" ,rank,n);
 		for(i=1;i < num-1; i++)
@@ -97,7 +99,22 @@ int main(void)
 			}
 			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
 			MPI_Isend(send_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
+		}
+		else if (rank !=(size-1))
+		{
+			for(j=0;j<m;j++)
+			{
+				//send_buff[i] = V[m*(num-1)+i];
+				send_buff2[j] = V[transformer(num-2,j)];
+			}
 			
+			MPI_Irecv(receive_buff2, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request2);
+			MPI_Isend(send_buff2, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request2);
+			
+		}
+		
+		if(!rank==0)
+		{
 			MPI_Wait(&send_request, &status);
 			MPI_Wait(&recv_request, &status);
 			
@@ -109,27 +126,22 @@ int main(void)
 		}
 		else if (rank !=(size-1))
 		{
-			for(j=0;j<m;j++)
-			{
-				//send_buff[i] = V[m*(num-1)+i];
-				send_buff[j] = V[transformer(num-2,j)];
-			}
-			
-			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request2);
-			MPI_Isend(send_buff, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request2);
-			
 			MPI_Wait(&send_request2, &status);
 			MPI_Wait(&recv_request2, &status);
 			
 			for(j=0;j<m;j++)
 			{
 				//V[m*(num-2)+i] = receive_buff[i];
-				V[transformer(num-1,j)] = receive_buff[j];
+				V[transformer(num-1,j)] = receive_buff2[j];
 			}
 		}
 		n += 1;
 	}
 	free(V_new);
+	free(send_buff);
+	free(send_buff2);
+	free(receive_buff);
+	free(receive_buff2);
 	
 	double *V_TOTAL,*V_Reduced;
 	V_Reduced = malloc(m*m/size*sizeof(double));
