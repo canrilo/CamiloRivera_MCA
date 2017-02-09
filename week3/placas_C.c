@@ -61,7 +61,8 @@ int main(void)
 	send_buff2 = malloc(m*sizeof(double));
 	receive_buff2 = malloc(m*sizeof(double));
 	while (n < N)
-	{	printf("Proc: %d. Ciclo %d\n" ,rank,n);
+	{	
+		printf("Proc: %d. Ciclo %d\n" ,rank,n);
 		for(i=1;i < num-1; i++)
 		{
 			ii = i + rank*m/size - r;
