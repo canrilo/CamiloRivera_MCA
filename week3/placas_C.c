@@ -11,6 +11,7 @@ int ispowerof2(unsigned int x);
 
 int main(void)
 {
+	int dummy=0;
 	int up, down, left, right, x0, x1, y0, y1, i=1, j=1, n=0, ii;
 	double average;
 	
@@ -70,11 +71,14 @@ int main(void)
 				right = transformer(i, j+1);
 				if (!(j >= x0 && j <= x1 && ii == y0) && !(j >= x0 && j <= x1 && ii == y1))
 				{
+					printf("Ubicacion actual= %d - %d",i,j);
 					average = (V[up] + V[down] + V[left] + V[right])/4;
+					dummy++;
 					V_new[transformer(i,j)] = average;
 				}
 			}
 		}
+		
 		for(i=1;i < num-1; i++)
 	    {
 			for(j=1;j < m-1; j++)
