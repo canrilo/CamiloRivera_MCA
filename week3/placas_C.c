@@ -91,15 +91,15 @@ int main(void)
 			V[transformer(i,j)] = V_new[transformer(i,j)] ;
 		  }
 		}
-		if(!rank==0)
+		if(rank!=0)
 		{
 			for(j=0;j<m;j++)
 			{
 				//send_buff[i] = V[i];
 				send_buff[i] = V[transformer(1,j)];
 			}
-			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
 			MPI_Isend(send_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
+			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
 		}
 		else if (rank !=(size-1))
 		{
@@ -109,13 +109,13 @@ int main(void)
 				send_buff2[j] = V[transformer(num-2,j)];
 			}
 			
-			MPI_Irecv(receive_buff2, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request2);
 			MPI_Isend(send_buff2, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &send_request2);
-			
+			MPI_Irecv(receive_buff2, m, MPI_DOUBLE, rank+1, 0, MPI_COMM_WORLD, &recv_request2);			
 		}
 		
-		if(!rank==0)
+		if(rank!=0)
 		{
+			printf("Proc: %d. Esperando Anterior %d\n" ,rank);
 			MPI_Wait(&send_request, &status);
 			MPI_Wait(&recv_request, &status);
 			
@@ -127,6 +127,7 @@ int main(void)
 		}
 		else if (rank !=(size-1))
 		{
+			printf("Proc: %d. Esperando siguiente\n" ,rank);
 			MPI_Wait(&send_request2, &status);
 			MPI_Wait(&recv_request2, &status);
 			
@@ -136,6 +137,7 @@ int main(void)
 				V[transformer(num-1,j)] = receive_buff2[j];
 			}
 		}
+		printf("Proc: %d. Fin Ciclo %d\n" ,rank);
 		n += 1;
 	}
 	free(V_new);
