@@ -62,7 +62,7 @@ int main(void)
 	receive_buff2 = malloc(m*sizeof(double));
 	while (n < N)
 	{	
-		printf("Proc: %d. Ciclo %d\n" ,rank,n);
+		//printf("Proc: %d. Ciclo %d\n" ,rank,n);
 		for(i=1;i < num-1; i++)
 		{
 			ii = i + rank*m/size - r;
@@ -115,7 +115,7 @@ int main(void)
 		
 		if(rank!=0)
 		{
-			printf("Proc: %d. Esperando Anterior\n" ,rank);
+			//printf("Proc: %d. Esperando Anterior\n" ,rank);
 			MPI_Wait(&recv_request, &status);
 			MPI_Wait(&send_request, &status);
 			
@@ -127,7 +127,7 @@ int main(void)
 		}
 		if (rank !=(size-1))
 		{
-			printf("Proc: %d. Esperando siguiente\n" ,rank);
+			//printf("Proc: %d. Esperando siguiente\n" ,rank);
 			MPI_Wait(&send_request2, &status);
 			MPI_Wait(&recv_request2, &status);
 			
@@ -137,7 +137,7 @@ int main(void)
 				V[transformer(num-1,j)] = receive_buff2[j];
 			}
 		}
-		printf("Proc: %d. Fin Ciclo %d\n" ,rank);
+		//printf("Proc: %d. Fin Ciclo %d\n" ,rank);
 		n += 1;
 	}
 	free(V_new);
@@ -177,7 +177,7 @@ int main(void)
 	MPI_Gather(V_Reduced,(int)m*m/size, MPI_DOUBLE, V_TOTAL, (int)m*m/size, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 	if(rank==0)
 	{	
-		for(i=0;i < num; i++)
+		for(i=0;i < m; i++)
 		{
 			for(j=0;j < m; j++)
 			{
