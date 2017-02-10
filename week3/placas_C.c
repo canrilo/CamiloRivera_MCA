@@ -213,7 +213,7 @@ double *init(int x0, int x1, int y0, int y1, double *array)
 			}
 			else
 			{
-				array[transformer(i,j)] = 0;
+				//array[transformer(i,j)] = 0;
 			}
 		}
 	}
