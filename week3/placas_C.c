@@ -101,7 +101,7 @@ int main(void)
 			MPI_Isend(send_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
 			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
 		}
-		else if (rank !=(size-1))
+		if (rank !=(size-1))
 		{
 			for(j=0;j<m;j++)
 			{
@@ -115,9 +115,9 @@ int main(void)
 		
 		if(rank!=0)
 		{
-			printf("Proc: %d. Esperando Anterior %d\n" ,rank);
-			MPI_Wait(&send_request, &status);
+			printf("Proc: %d. Esperando Anterior\n" ,rank);
 			MPI_Wait(&recv_request, &status);
+			MPI_Wait(&send_request, &status);
 			
 			for(j=0;j<m;j++)
 			{
@@ -125,7 +125,7 @@ int main(void)
 				V[transformer(0,j)]=receive_buff[j];
 			}
 		}
-		else if (rank !=(size-1))
+		if (rank !=(size-1))
 		{
 			printf("Proc: %d. Esperando siguiente\n" ,rank);
 			MPI_Wait(&send_request2, &status);
