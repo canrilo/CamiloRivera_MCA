@@ -103,7 +103,7 @@ int main(void)
 			for(j=0;j<m;j++)
 			{
 				//send_buff[i] = V[i];
-				send_buff[i] = V[transformer(1,j)];
+				send_buff[j] = V[transformer(1,j)];
 			}
 			MPI_Isend(send_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &send_request);
 			MPI_Irecv(receive_buff, m, MPI_DOUBLE, rank-1, 0, MPI_COMM_WORLD, &recv_request);
