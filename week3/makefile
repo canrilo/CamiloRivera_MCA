@@ -1,6 +1,6 @@
-PNG = Potential_?.png
+PNG = Potential_4.png
 
-all: ${PNG} placas
+all: placas ${PNG}
 
 placas: placas_C.c
 	mpicc -o placas placas_C.c -lm
