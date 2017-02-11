@@ -1,5 +1,5 @@
 #PBS -N camilor_placas
-#PBS -l nodes=1:ppn=2
+#PBS -l nodes=1:ppn=16
 #PBS -M ca.rivera965@uniandes.edu.co
 #PBS -m abe
 
