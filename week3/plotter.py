@@ -1,19 +1,33 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = np.genfromtxt('output.txt')
-size = int(np.sqrt(data.shape[0]))
-potential = data.reshape(size, size)
+infile = open('output.txt','r')
+header_size = int(infile.readline().rstrip())
+m = int(infile.readline().rstrip())
+h = float(infile.readline().rstrip())
+numproc = int(infile.readline().rstrip())
+infile.close()
 
-xi, yi = np.linspace(0, size-1, size), np.linspace(0, size-1, size)
+data = np.genfromtxt('output.txt',skip_header=header_size)
+potential = data.reshape(m, m)
 
+xi, yi = np.linspace(0, m, m), np.linspace(0, m, m)
 xi, yi = np.meshgrid(xi, yi)
 
+fig, ax = plt.subplots()
+
 dx, dy = np.gradient(-potential)
-plt.imshow(potential)
-plt.streamplot(xi, yi, dy, dx, color='black')
-plt.xlim(0, size-1)
-plt.ylim(size-1, 0)
-plt.title('Capacitor')
-plt.savefig('V.png')
+ax.streamplot(xi, yi, dy, dx, color=potential, cmap=plt.cm.brg, density=[2,1])
+
+plt.xlim(0, m)
+plt.ylim(m, 0)
+
+x = np.array([1,2,3,4,5])*m/5.0
+b=['1','2','3','4','5']
+plt.xticks(x,b)
+plt.yticks(x,b)
+#ax.xaxis.set_ticks_position('top')
+
+plt.title('Capacitor ' + str(numproc) + ' Processors')
+plt.savefig('Potential_' + str(numproc) + '.png')
 

@@ -11,9 +11,11 @@ int ispowerof2(unsigned int x);
 
 int main(void)
 {
-	int dummy=0;
+	int header_size=0;
 	int up, down, left, right, x0, x1, y0, y1, i=1, j=1, n=0, ii;
 	double average;
+	
+	double *send_buff, *receive_buff, *send_buff2, *receive_buff2;
 	
 	MPI_Init(NULL, NULL);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -31,7 +33,7 @@ int main(void)
 	
 	m = 256;   //L/h;
 	N = 2*m*m;
-
+	
 	x0 = (int) m/2 - l/(h*2) - 1;
 	x1 = (int) m/2 + l/(h*2) - 1;
 	y0 = (int) m/2 - d/(h*2) - 1;
@@ -43,11 +45,15 @@ int main(void)
 		num--;
 	}
 	r = !(rank==0); 
-	//r = 1; 			//Number for index adjustment if rank 0
-	//if (rank==0)
-	//{
-	//	r=0;
-	//}
+	
+	header_size=4;
+	if(rank==0)
+	{
+		printf("%d\n",header_size);
+		printf("%d\n",m);
+		printf("%.7e\n",h);
+		printf("%d\n",size);
+	}
 	
 	double *V = malloc((m*num)*sizeof(double));
 	double *V_new = malloc(m*num*sizeof(double));
@@ -55,11 +61,12 @@ int main(void)
 	V = init(x0, x1, y0, y1, V);
 	V_new = init(x0, x1, y0, y1, V_new);
 	
-	double *send_buff, *receive_buff, *send_buff2, *receive_buff2;	
+		
 	send_buff = malloc(m*sizeof(double));
 	receive_buff = malloc(m*sizeof(double));
 	send_buff2 = malloc(m*sizeof(double));
 	receive_buff2 = malloc(m*sizeof(double));
+	
 	while (n < N)
 	{	
 		//printf("Proc: %d. Ciclo %d\n" ,rank,n);
