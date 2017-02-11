@@ -17,6 +17,8 @@ int main(void)
 	
 	double *send_buff, *receive_buff, *send_buff2, *receive_buff2;
 	
+	FILE *f = fopen("output.txt", "w");
+	
 	MPI_Init(NULL, NULL);
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -49,10 +51,10 @@ int main(void)
 	header_size=4;
 	if(rank==0)
 	{
-		printf("%d\n",header_size);
-		printf("%d\n",m);
-		printf("%.7e\n",h);
-		printf("%d\n",size);
+		fprintf(f,"%d\n",header_size);
+		fprintf(f,"%d\n",m);
+		fprintf(f,"%.7e\n",h);
+		fprintf(f,"%d\n",size);
 	}
 	
 	double *V = malloc((m*num)*sizeof(double));
@@ -188,9 +190,10 @@ int main(void)
 		{
 			for(j=0;j < m; j++)
 			{
-				printf("%f\n", V_TOTAL[transformer(i,j)]);
+				fprintf(f,"%f\n", V_TOTAL[transformer(i,j)]);
 			}
 		}
+		fclose(f);
 	}
 	MPI_Finalize();
 	return 0;
