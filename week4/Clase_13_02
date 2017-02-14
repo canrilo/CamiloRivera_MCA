@@ -1,0 +1,5 @@
+OpenMP corre sobre los hilos físicos de los procesadores
+
+omp_set_num_threads  - fijar hilos
+
+
