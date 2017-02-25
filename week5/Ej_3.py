@@ -24,16 +24,20 @@ def get_F(U,gamma):
 	rho=U[0,:]
 	u=U[1,:]/rho
 	e=U[2,:]
-	p=(gamma-1)*(e-rho*(u**2)/2)
-	
+	p=(gamma-1)*(e-rho*(u**2)/2.0)
+	F=np.zeros(np.shape(U))
+	F[0,:]=u*rho
+	F[1,:]=rho*(u**2)+p
+	F[2,:]=u*(e+p)
+	return F
 
 def get_e(gamma, rho,u,p):
 	u2=u**2
 	e=p/(gamma-1)+rho*u2/(2.0)
 	return e
 
-dx=0.2
-dt=0.01
+dx=0.1
+dt=0.05
 tmax=1.0
 xsteps=int(1/dx)+1
 tsteps=int(tmax/dt)+1
@@ -46,8 +50,8 @@ rho[x<=0.5]=1.0
 rho[x>0.5]=0.125
 
 p=u.copy()
-p[x<=0.5]=0.1
-p[x>0.5]=1.0
+p[x<=0.5]=1.0
+p[x>0.5]=0.1
 
 e=get_e(gamma,rho,u,p)
 
@@ -63,4 +67,26 @@ F_ini[2,:]=u*(e+p)
 
 U_final=Mac_Cormack(gamma,U_ini,F_ini,dx,dt,tsteps)
 
+rho_final =U_final[0,:]
+u_final = U_final[1,:]/rho_final
+e_final = U_final[2,:]
+p_final=(gamma-1)*(e_final-rho_final*(u_final**2)/2.0)
 
+fig = plt.figure()
+
+axu = fig.add_subplot(311)
+axu.plot(x,u)
+axu.plot(x,u_final)
+axu.set_title('u')
+
+axp = fig.add_subplot(312)
+axp.plot(x,p)
+axp.plot(x,p_final)
+axp.set_title('p')
+
+axr = fig.add_subplot(313)
+axr.plot(x,rho)
+axr.plot(x,rho_final)
+axr.set_title('rho')
+
+plt.show()
