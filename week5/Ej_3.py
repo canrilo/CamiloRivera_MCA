@@ -11,9 +11,9 @@ def Mac_Cormack(gamma,U,F,dx,dt,tsteps):
 	F_new=F.copy()
 	
 	for i in range(tsteps):
-		U_temp[:,1:-1]=U[:,1:-1]-dt(F[:,2:]-F[:,1:-1])/dx
+		U_temp[:,1:-1]=U[:,1:-1]-dt*(F[:,2:]-F[:,1:-1])/dx
 		F_temp=get_F(U_temp,gamma)
-		U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2]/dx))/2
+		U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2])/dx)/2
 		F_new= get_F(U_new,gamma)
 		
 		F=F_new.copy()
@@ -25,6 +25,7 @@ def get_F(U,gamma):
 	u=U[1,:]/rho
 	e=U[2,:]
 	p=(gamma-1)*(e-rho*(u**2)/2)
+	
 
 def get_e(gamma, rho,u,p):
 	u2=u**2
