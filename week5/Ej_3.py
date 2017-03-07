@@ -38,7 +38,7 @@ def get_e(gamma, rho,u,p):
 	e=p/(gamma-1)+rho*u2/(2.0)
 	return e
 
-dx=0.2
+dx=0.1
 dt=0.05
 tmax=1.0
 xsteps=int(1/dx)+1
