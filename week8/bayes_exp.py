@@ -10,7 +10,7 @@ lmin=0.01
 lmax=5.0
 
 def Evidencia(datos):
-	return 2.0
+	return 0.02
 
 
 def P_verosim(datos, lamb,zet):
