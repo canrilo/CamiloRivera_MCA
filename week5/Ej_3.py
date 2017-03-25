@@ -13,16 +13,23 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 	t=t_ini
 	
 	while t<t_fin:
-		print str(t)+':\n'
+		#print str(t)+':\n'
 		U_temp[:,1:-1]=U[:,1:-1]-dt*(F[:,2:]-F[:,1:-1])/dx
+		#U_temp=U-dt*(np.roll(F,-1,1)-F)/dx
 		F_temp=get_F(U_temp,gamma)
 		
 		U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2])/dx)/2.0
+		#U_new=(U+U_temp-dt*(F_temp-np.roll(F_temp,1,1)/dx))/2.0
 		F_new= get_F(U_new,gamma)
 		
 		F=F_new.copy()
 		U=U_new.copy()
-		
+		#print 'U:\n'
+		#print U
+		#print '\n F:\n'
+		#print F
+		#raw_input()
+		#print '---------------\n'
 		umax=max(np.abs(safe_div(U[1,:],U[0,:])))
 		if umax!=0.0:
 			dt=max(1e-3,dx/(c*umax))
@@ -42,10 +49,12 @@ def get_F(U,gamma):
 	F[0,:]=U[1,:]
 	F[1,:]=rho*(u**2)+p
 	F[2,:]=u*(e+p)
-	print 'u:\n'+str(u)
-	print 'rho:\n'+str(rho)
-	print 'p:\n'+str(p)
-	raw_input()
+	#print 'u:\n'+str(u)
+	#print 'rho:\n'+str(rho)
+	#print 'p:\n'+str(p)
+	#print 'e:\n'+str(e)
+	#print '--------------------------\n'
+	#raw_input()
 	return F
 
 def get_e(gamma, rho,u,p):
@@ -60,8 +69,8 @@ def safe_div(num,denom):
 			ans[i]=num[i]/denom[i]
 	return ans
 
-dx=0.05
-dt=0.00001
+dx=0.1
+dt=0.0001
 tmax=1.0
 c=2.0
 xsteps=int(1/dx)+1
