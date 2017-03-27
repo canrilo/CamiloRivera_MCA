@@ -27,8 +27,15 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 		
 		F=F_new.copy()
 		U=U_new.copy()
+		
+		amax=0#max(A)
+		umax=max(np.abs(safe_div(U[1,:],U[0,:])))
+		if umax!=0.0:
+			dt=dx/(c*(umax+amax))#max(1e-10,dx/(c*(umax+amax)))
+		#dt=min(dt,dx)
+		
 		if False:
-			print str(t)+':\n'
+			print str(t) + ' + ' + str(dt) + ' + umax: ' + str(umax) + ' + amax: ' +str(amax) + ':\n'
 			print 'U:\n'
 			print U
 			print '\n F:\n'
@@ -36,27 +43,22 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 			raw_input()
 			print '---------------\n'
 		
-		amax=max(A)
-		umax=max(np.abs(safe_div(U[1,:],U[0,:])))
-		if umax!=0.0:
-			dt=max(1e-3,dx/(c*(umax+amax)))
-		dt=min(dt,dx)
-
 		t+=dt
 	return U 
 
 def get_F(U,gamma):
 	rho=U[0,:]
-	#u=U[1,:]/rho
-	u=safe_div(U[1,:],rho)
+	u=U[1,:]/rho
+	#u=safe_div(U[1,:],rho)
 	e=U[2,:]
 	p=(gamma-1)*(e-rho*(u**2)/2.0)
 	F=np.zeros(np.shape(U))
-	A=(safe_div(p,rho)*gamma)**(0.5)
+	A=(safe_div(np.abs(p),np.abs(rho))*gamma)**(0.5)
 	F[0,:]=U[1,:]
 	F[1,:]=U[1,:]*u+p
 	F[2,:]=u*(e+p)
 	if False:
+		print 'A:\n' + str(A)
 		print 'u:\n'+str(u)
 		print 'rho:\n'+str(rho)
 		print 'p:\n'+str(p)
