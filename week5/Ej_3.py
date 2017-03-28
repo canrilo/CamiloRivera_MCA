@@ -32,7 +32,7 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 		umax=max(np.abs(safe_div(U[1,:],U[0,:])))
 		if umax!=0.0:
 			dt=dx/(c*(umax+amax))#max(1e-10,dx/(c*(umax+amax)))
-		#dt=min(dt,dx)
+		dt=min(dt,10*dx)
 		
 		if False:
 			print str(t) + ' + ' + str(dt) + ' + umax: ' + str(umax) + ' + amax: ' +str(amax) + ':\n'
@@ -100,14 +100,15 @@ p[x>0.5]=0.1
 e=get_e(gamma,rho,u,p)
 
 U_ini=np.zeros([3,np.shape(x)[0]])
-U_ini[0,:]=rho.copy()
+U_ini[0,:]=rho#.copy()
 U_ini[1,:]=rho*u
-U_ini[2,:]=e.copy()
+U_ini[2,:]=e#.copy()
 
-F_ini= np.zeros([3,np.shape(x)[0]])#F_ini= get_F(U_ini,gamma)
-F_ini[0,:]=u*rho
-F_ini[1,:]=rho*(u**2)+p
-F_ini[2,:]=u*(e+p)
+F_ini= get_F(U_ini,gamma)
+#F_ini= np.zeros([3,np.shape(x)[0]])
+#F_ini[0,:]=u*rho
+#F_ini[1,:]=rho*(u**2)+p
+#F_ini[2,:]=u*(e+p)
 
 U_final=Mac_Cormack(c,gamma,U_ini,F_ini,dx,dt,0.0,tmax)
 
