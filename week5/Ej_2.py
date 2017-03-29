@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def Lax(U,dt,dx,tms):
-	U_fin=np.zeros(shape(U)[0],shape(tms)[0])
+	U_fin=np.zeros(np.shape(U)[0],np.shape(tms)[0])
 	t=0
 	for i in range(tms):
 		while t<=tms[i]:
@@ -15,7 +15,7 @@ def Lax(U,dt,dx,tms):
 
 dx=0.05
 dt=dx*0.5
-x=linspace(0,4,dx)
-U_ini=zeros(shape(x))
+x=np.linspace(0,4,dx)
+U_ini=np.zeros(np.shape(x))
 U_ini[x<=2]=1
 

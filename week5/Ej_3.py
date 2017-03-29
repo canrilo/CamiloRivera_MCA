@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 
 #Solucion de Mac Cormak para ecuaciones de Euler en zonas de alta y baja presion
 
-def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
+def Mac_Cormack(c,var_gamma,U,F,dx,dt, t_ini,t_fin):
 	U_temp=U.copy()
 	F_temp=F.copy()
 	
@@ -13,27 +13,27 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 	t=t_ini
 	
 	while t<t_fin:
-		U_temp[:,1:-1]=U[:,1:-1]-dt*(F[:,2:]-F[:,1:-1])/dx
-		#for i in range(1,len(U[1,:])-1):
-		#	U_temp[:,i]=U[:,i]-dt*(F[:,i+1]-F[:,i])/dx
+		#U_temp[:,1:-1]=U[:,1:-1]-dt*(F[:,2:]-F[:,1:-1])/dx
+		for i in range(1,len(U[1,:])-1):
+			U_temp[:,i]=U[:,i]-dt*(F[:,i+1]-F[:,i])/dx
 		#U_temp=U-dt*(np.roll(F,-1,1)-F)/dx
-		F_temp=get_F(U_temp,gamma)
+		F_temp=get_F(U_temp,var_gamma)
 		
-		U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2])/dx)/2.0
-		#for i in range(1,len(U[1,:])-1):
-		#	U_new[:,i]=(U[:,i]+U_temp[:,i]-dt*(F_temp[:,i]-F_temp[:,i-1])/dx)/2.0
+		#U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2])/dx)/2.0
+		for i in range(1,len(U[1,:])-1):
+			U_new[:,i]=(U[:,i]+U_temp[:,i]-dt*(F_temp[:,i]-F_temp[:,i-1])/dx)/2.0
 		#U_new=(U+U_temp-dt*(F_temp-np.roll(F_temp,1,1)/dx))/2.0
-		F_new,A= get_F(U_new,gamma)
+		F_new= get_F(U_new,var_gamma)
 		
 		F=F_new.copy()
 		U=U_new.copy()
 		
-		dt=get_dt(U,gamma,c,dx)
+		dt=get_dt(U,var_gamma,c,dx)
 		
 		#dt=min(dt,10*dx)
 		
-		if True:
-			print str(t) + ' + ' + str(dt) + ' + umax: ' + str(umax) + ' + amax: ' +str(amax) + ':\n'
+		if False:
+			print str(t) + ' + ' + str(dt) + ':\n'
 			print 'U:\n'
 			print U
 			print '\n F:\n'
@@ -44,50 +44,59 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 		t+=dt
 	return U 
 
-def Lax(c,gamma,U,F,dx,dt, t_ini,t_fin):
+def Lax(c,var_gamma,U,F,dx,dt, t_ini,t_fin):
 	t=t_ini
+	U_fin=U.copy()
 	
 	while t<=t_fin:
-		F=get_F(U,gamma)
+		F=get_F(U,var_gamma)
 		U_fin[:,1:-1]= (U[:,2:]-U[:,0:-2])/2-dt*(F[:,2:]-F[:,0:-2])/(2*dx)
-		dt = get_dt(U_fin,gamma,c,dx)
+		dt = get_dt(U_fin,var_gamma,c,dx)
 		t=t+dt
 		
 		U=U_fin.copy()
 	return U_fin
 
-def get_dt(U, gamma,C,dx):
-	rho=U[0,:]
-	e=U[2,:]
-	u=U[1,:]/rho
-	p=(gamma-1)*(e-rho*(u**2)/2.0)
-	A=(safe_div(np.abs(p),np.abs(rho))*gamma)**(0.5)
+def get_dt(U, var_gamma,C,dx):
+	rho=U[0,:].copy()
+	energ=U[2,:].copy()
+	u=safe_div(U[1,:],rho)
+	p=(var_gamma-1.0)*(energ-rho*(u**2)/2.0)
+	A=(safe_div(np.abs(p),np.abs(rho))*var_gamma)**(0.5)
 	dt=dx/(C*(max(abs(u))+max(A)))
+	if False:
+		print 'dt:\n' + str(dt) + '\n'
+		print 'u:\n'+str(u)
+		print 'rho:\n'+str(rho)
+		print 'p:\n'+str(p)
+		print 'e:\n'+str(energ)
+		print '--------------------------\n'
+		raw_input()
 	return dt
 
-def get_F(U,gamma):
-	rho=U[0,:]
-	u=U[1,:]/rho
-	#u=safe_div(U[1,:],rho)
-	e=U[2,:]
-	p=(gamma-1)*(e-rho*(u**2)/2.0)
+def get_F(U,var_gamma):
+	rho=U[0,:].copy()
+	#u=U[1,:]/rho
+	u=safe_div(U[1,:],rho)
+	energ=U[2,:].copy()
+	p=(var_gamma-1.0)*(energ-rho*(u**2)/2.0)
 	F=np.zeros(np.shape(U))
-	F[0,:]=U[1,:]
+	F[0,:]=U[1,:].copy()
 	F[1,:]=U[1,:]*u+p
-	F[2,:]=u*(e+p)
+	F[2,:]=u*(energ+p)
 	if False:
 		print 'u:\n'+str(u)
 		print 'rho:\n'+str(rho)
 		print 'p:\n'+str(p)
-		print 'e:\n'+str(e)
+		print 'e:\n'+str(energ)
 		print '--------------------------\n'
 		raw_input()
 	return F
 
-def get_e(gamma, rho,u,p):
+def get_e(var_gamma, rho,u,p):
 	u2=u**2
-	e=p/(gamma-1)+rho*u2/(2.0)
-	return e
+	energ=p/(var_gamma-1.0)+rho*u2/(2.0)
+	return energ
 
 def safe_div(num,denom):
 	ans=num.copy()
@@ -96,14 +105,14 @@ def safe_div(num,denom):
 			ans[i]=num[i]/denom[i]
 	return ans
 
-dx=0.05
-tmax=1.0
+dx=0.1
+tmax=0.3
 c=2.0
 xsteps=int(1/dx)+1
-gamma=1.4
+var_gamma=1.4
 R=8.314
 x=np.linspace(0,1,xsteps)
-u=np.zeros(np.shape(x))
+u=np.zeros(xsteps)
 
 rho=u.copy()
 rho[x<=0.5]=1.0
@@ -113,27 +122,25 @@ p=u.copy()
 p[x<=0.5]=1.0
 p[x>0.5]=0.1
 
-e=get_e(gamma,rho,u,p)
+energ=get_e(var_gamma,rho,u,p)
 
-U_ini=np.zeros([3,np.shape(x)[0]])
-U_ini[0,:]=rho#.copy()
+U_ini=np.zeros([3,xsteps])
+U_ini[0,:]=rho.copy()
 U_ini[1,:]=rho*u
-U_ini[2,:]=e#.copy()
+U_ini[2,:]=energ.copy()
 
-dt=get_dt(U_ini,gamma,c,dx)
+dt=get_dt(U_ini,var_gamma,c,dx)
 
-F_ini= get_F(U_ini,gamma)
-#F_ini= np.zeros([3,np.shape(x)[0]])
-#F_ini[0,:]=u*rho
-#F_ini[1,:]=rho*(u**2)+p
-#F_ini[2,:]=u*(e+p)
+F_ini= get_F(U_ini,var_gamma)
 
-U_final=Mac_Cormack(c,gamma,U_ini,F_ini,dx,dt,0.0,tmax)
 
-rho_final =U_final[0,:]
+#U_final=Mac_Cormack(c,var_gamma,U_ini,F_ini,dx,dt,0.0,tmax)
+U_final=Lax(c,var_gamma,U_ini,F_ini,dx,dt,0.0,tmax)
+
+rho_final = U_final[0,:].copy()
 u_final = safe_div(U_final[1,:],rho_final)#U_final[1,:]/rho_final
-e_final = U_final[2,:]
-p_final=(gamma-1)*(e_final-rho_final*(u_final**2)/2.0)
+e_final = U_final[2,:].copy()
+p_final=(var_gamma-1.0)*(e_final-rho_final*(u_final**2)/2.0)
 
 fig = plt.figure()
 
