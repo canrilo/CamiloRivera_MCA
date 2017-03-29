@@ -17,7 +17,7 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 		#for i in range(1,len(U[1,:])-1):
 		#	U_temp[:,i]=U[:,i]-dt*(F[:,i+1]-F[:,i])/dx
 		#U_temp=U-dt*(np.roll(F,-1,1)-F)/dx
-		F_temp,A=get_F(U_temp,gamma)
+		F_temp=get_F(U_temp,gamma)
 		
 		U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2])/dx)/2.0
 		#for i in range(1,len(U[1,:])-1):
@@ -28,13 +28,11 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 		F=F_new.copy()
 		U=U_new.copy()
 		
-		amax=0#max(A)
-		umax=max(np.abs(safe_div(U[1,:],U[0,:])))
-		if umax!=0.0:
-			dt=dx/(c*(umax+amax))#max(1e-10,dx/(c*(umax+amax)))
-		dt=min(dt,10*dx)
+		dt=get_dt(U,gamma,c,dx)
 		
-		if False:
+		#dt=min(dt,10*dx)
+		
+		if True:
 			print str(t) + ' + ' + str(dt) + ' + umax: ' + str(umax) + ' + amax: ' +str(amax) + ':\n'
 			print 'U:\n'
 			print U
@@ -46,6 +44,27 @@ def Mac_Cormack(c,gamma,U,F,dx,dt, t_ini,t_fin):
 		t+=dt
 	return U 
 
+def Lax(c,gamma,U,F,dx,dt, t_ini,t_fin):
+	t=t_ini
+	
+	while t<=t_fin:
+		F=get_F(U,gamma)
+		U_fin[:,1:-1]= (U[:,2:]-U[:,0:-2])/2-dt*(F[:,2:]-F[:,0:-2])/(2*dx)
+		dt = get_dt(U_fin,gamma,c,dx)
+		t=t+dt
+		
+		U=U_fin.copy()
+	return U_fin
+
+def get_dt(U, gamma,C,dx):
+	rho=U[0,:]
+	e=U[2,:]
+	u=U[1,:]/rho
+	p=(gamma-1)*(e-rho*(u**2)/2.0)
+	A=(safe_div(np.abs(p),np.abs(rho))*gamma)**(0.5)
+	dt=dx/(C*(max(abs(u))+max(A)))
+	return dt
+
 def get_F(U,gamma):
 	rho=U[0,:]
 	u=U[1,:]/rho
@@ -53,19 +72,17 @@ def get_F(U,gamma):
 	e=U[2,:]
 	p=(gamma-1)*(e-rho*(u**2)/2.0)
 	F=np.zeros(np.shape(U))
-	A=(safe_div(np.abs(p),np.abs(rho))*gamma)**(0.5)
 	F[0,:]=U[1,:]
 	F[1,:]=U[1,:]*u+p
 	F[2,:]=u*(e+p)
 	if False:
-		print 'A:\n' + str(A)
 		print 'u:\n'+str(u)
 		print 'rho:\n'+str(rho)
 		print 'p:\n'+str(p)
 		print 'e:\n'+str(e)
 		print '--------------------------\n'
 		raw_input()
-	return F,A
+	return F
 
 def get_e(gamma, rho,u,p):
 	u2=u**2
@@ -80,7 +97,6 @@ def safe_div(num,denom):
 	return ans
 
 dx=0.05
-dt=0.00001
 tmax=1.0
 c=2.0
 xsteps=int(1/dx)+1
@@ -103,6 +119,8 @@ U_ini=np.zeros([3,np.shape(x)[0]])
 U_ini[0,:]=rho#.copy()
 U_ini[1,:]=rho*u
 U_ini[2,:]=e#.copy()
+
+dt=get_dt(U_ini,gamma,c,dx)
 
 F_ini= get_F(U_ini,gamma)
 #F_ini= np.zeros([3,np.shape(x)[0]])
