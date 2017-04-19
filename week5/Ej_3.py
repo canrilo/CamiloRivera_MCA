@@ -16,15 +16,9 @@ def Mac_Cormack(c,var_gamma,U,F,dx,dt, t_ini,t_fin):
 	while t<t_fin:
 		
 		U_temp[:,1:-1]=U[:,1:-1]-dt*(F[:,2:]-F[:,1:-1])/dx
-		#for i in range(1,len(U[1,:])-1):
-		#	U_temp[:,i]=U[:,i]-dt*(F[:,i+1]-F[:,i])/dx
-		#U_temp=U-dt*(np.roll(F,-1,1)-F)/dx
 		F_temp=get_F(U_temp,var_gamma)
 		
 		U_new[:,1:-1]=(U[:,1:-1]+U_temp[:,1:-1]-dt*(F_temp[:,1:-1]-F_temp[:,0:-2])/dx)/2.0
-		#for i in range(1,len(U[1,:])-1):
-		#	U_new[:,i]=(U[:,i]+U_temp[:,i]-dt*(F_temp[:,i]-F_temp[:,i-1])/dx)/2.0
-		#U_new=(U+U_temp-dt*(F_temp-np.roll(F_temp,1,1)/dx))/2.0
 		F_new= get_F(U_new,var_gamma)
 		
 		F=F_new.copy()
@@ -86,7 +80,6 @@ def get_dt(U, var_gamma,C,dx):
 
 def get_F(U,var_gamma):
 	rho=U[0,:].copy()
-	#u=U[1,:]/rho
 	u=safe_div(U[1,:],rho)
 	energ=U[2,:].copy()
 	p=(var_gamma-1.0)*(energ-(rho*(u**2.0))/2.0)
@@ -116,8 +109,8 @@ def safe_div(num,denom):
 			ans[i]=num[i]/denom[i]
 	return num/denom
 
-dx=0.02
-tmax=0.05
+dx=0.01
+tmax=0.2
 c=2.0
 xsteps=int(1/dx)+1
 var_gamma=1.4
@@ -127,11 +120,11 @@ u=np.zeros(xsteps)
 
 rho=u.copy()
 rho[x<=0.5]=1.0
-rho[x>0.5]=0.125
+rho[x>0.5]=0.9#0.125
 
 p=u.copy()
 p[x<=0.5]=1.0
-p[x>0.5]=0.1
+p[x>0.5]=0.9#0.1
 
 energ=get_e(var_gamma,rho,u,p)
 
@@ -170,4 +163,5 @@ axr.plot(x,rho)
 axr.plot(x,rho_final)
 axr.set_title('rho')
 
-plt.show()
+#plt.show()
+plt.savefig('dx_'+str(dx)+'_tmax_'+str(tmax)+'_rho0_'+str(rho[-1])+'_p0_'+str(p[-1])+'.png')
